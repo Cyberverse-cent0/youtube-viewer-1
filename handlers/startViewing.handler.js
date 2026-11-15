@@ -2,6 +2,7 @@ const _each = require('lodash/each');
 
 const TorService = require('../services/tor.service');
 const YTBrowserService = require('../services/youtubeBrowser.service');
+const browserPool = require('../services/browserPool.service');
 const { logger, resourceMonitor, errorTypes } = require('../utils');
 
 let successes = 0;
@@ -16,11 +17,16 @@ const addToErrorTotals = (type, count = 1) => {
 
 const startViewingHandler = async (options, index) => {
   await TorService.startTor();
+  const ports = [];
+  for (let i = 0; i < options.batchCount; i += 1) ports.push(options.startPort + i);
+  await browserPool.ensureBrowsers(ports);
   const promiseArr = [];
   for (let i = 0; i < options.batchCount; i += 1) {
     const port = options.startPort + i;
     const batchIndex = index * options.batchCount + i;
-    promiseArr.push(YTBrowserService.viewVideosInBatch({ ...options, port, batchIndex }));
+    promiseArr.push(YTBrowserService.viewVideosInBatch({
+      ...options, port, batchIndex, browser: browserPool.getBrowser(port),
+    }));
   }
   return Promise.allSettled(promiseArr).then((settedPromises) => {
     logger.info('Batch Summary -');

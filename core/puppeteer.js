@@ -27,21 +27,17 @@ const MEMORY_SAVING_ARGS = [
   '--disable-features=Translate,BackForwardCache,MediaRouter,PaintHolding,WebContentsOcclusion',
 ];
 
-const getBrowserInstance = async (port) => {
+const launchBrowser = async (port) => {
   const args = ['--no-sandbox', ...MEMORY_SAVING_ARGS];
   if (IS_PROD) args.push(`--proxy-server=socks5://127.0.0.1:${port}`);
-  const browser = await puppeteer.launch({
+  return puppeteer.launch({
     args,
     devtools: !IS_PROD,
     executablePath: IS_PROD ? '/usr/bin/chromium-browser' : undefined,
   });
-  const incognitoBrowserContext = browser.createIncognitoBrowserContext();
-  incognitoBrowserContext.close = browser.close;
-  incognitoBrowserContext.rawBrowser = browser;
-  return incognitoBrowserContext;
 };
 
 module.exports = {
-  getBrowserInstance,
+  launchBrowser,
   MEMORY_SAVING_ARGS,
 };

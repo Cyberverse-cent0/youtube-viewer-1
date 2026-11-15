@@ -1,5 +1,6 @@
 const TorService = require('./services/tor.service');
 const startViewingHandler = require('./handlers/startViewing.handler');
+const browserPool = require('./services/browserPool.service');
 const { logger, urlReader, resourceMonitor } = require('./utils');
 const {
   START_PORT, TOTAL_COUNT, BATCH_COUNT, VIEW_DURATION, URL_CONTAINER_FILE_NAME,
@@ -13,6 +14,7 @@ async function main() {
 
     resourceMonitor.start();
     for (let i = 0; i < Math.ceil(TOTAL_COUNT / BATCH_COUNT); i += 1) {
+      await browserPool.recycleIfNeeded();
       await startViewingHandler({
         targetUrls, durationInSeconds: VIEW_DURATION, batchCount: BATCH_COUNT, startPort: START_PORT,
       }, i);
@@ -23,6 +25,7 @@ async function main() {
   } finally {
     resourceMonitor.stop();
     logger.info(`Final resource usage - ${resourceMonitor.getSnapshot()}`);
+    await Promise.race([browserPool.closeAll(), new Promise((resolve) => setTimeout(resolve, 15000))]);
     process.exit(1); // container restarts with non zero exit
   }
 }

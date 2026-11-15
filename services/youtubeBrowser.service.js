@@ -1,7 +1,6 @@
 const _shuffle = require('lodash/shuffle');
 const _take = require('lodash/take');
 
-const puppeteer = require('../core/puppeteer');
 const { watchVideosInSequence } = require('../helpers');
 const { blockHeavyResources } = require('../helpers/resourceBlocker');
 const { logger } = require('../utils');
@@ -30,15 +29,15 @@ const tallyStatuses = (results) => results.reduce((acc, { status }) => {
   return acc;
 }, {});
 
-const viewVideosInBatch = async ({ targetUrls, durationInSeconds, port, batchIndex }) => {
+const viewVideosInBatch = async ({ targetUrls, durationInSeconds, port, batchIndex, browser }) => {
   const startedAt = Date.now();
-  let browser;
+  let context;
   let page;
   let monitor;
   try {
-    browser = await puppeteer.getBrowserInstance(port);
-    page = await browser.newPage();
-    monitor = attachPageMonitor(page, browser.rawBrowser || browser);
+    context = await browser.createIncognitoBrowserContext();
+    page = await context.newPage();
+    monitor = attachPageMonitor(page, browser);
     await page.setBypassCSP(true);
     page.setDefaultTimeout(PAGE_DEFAULT_TIMEOUT * 1000);
     await blockHeavyResources(page);
@@ -86,7 +85,7 @@ const viewVideosInBatch = async ({ targetUrls, durationInSeconds, port, batchInd
       durationMs: Date.now() - startedAt,
     };
   } finally {
-    if (browser) await browser.close().catch(() => {});
+    if (context) await context.close().catch(() => {});
   }
 };
 

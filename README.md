@@ -60,6 +60,7 @@ Each parallel Chromium instance is the dominant memory consumer (~0.5-1 GB each 
  - Keep `BATCH_COUNT` low (default is 2 in production) and scale containers instead: `docker-compose up --scale ytview=N`. Total concurrent Chromium instances = containers × `BATCH_COUNT`.
  - Override per-container parallelism via `YOUTUBE_VIEWER_BATCH_COUNT` env var.
  - Images and fonts are blocked via request interception (video streams are unaffected), and Chromium is launched with memory-saving flags (`core/puppeteer.js`).
+ - Browsers are reused across batches within a container (fresh incognito context per batch) and automatically recycled when Chromium RSS exceeds `YOUTUBE_VIEWER_RECYCLE_RSS_MB` (default 1500 MB).
  - `mem_limit` in `docker-compose.yml` caps each container's RAM.
  - Watch the `RESOURCE` log lines (or `Final resource usage`) to measure `chromium_rss_mb` per container before/after tuning.
 

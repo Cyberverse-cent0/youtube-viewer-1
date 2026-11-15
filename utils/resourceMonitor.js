@@ -117,4 +117,6 @@ const stop = () => {
 
 const getSnapshot = () => formatSnapshot(sample());
 
-module.exports = { start, stop, getSnapshot };
+const getChromiumRssMb = () => sample().chromiumRssMb;
+
+module.exports = { start, stop, getSnapshot, getChromiumRssMb };
