@@ -15,6 +15,7 @@ const getBrowserInstance = async (port) => {
   });
   const incognitoBrowserContext = browser.createIncognitoBrowserContext();
   incognitoBrowserContext.close = browser.close;
+  incognitoBrowserContext.rawBrowser = browser;
   return incognitoBrowserContext;
 };
 

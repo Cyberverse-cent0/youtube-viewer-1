@@ -13,8 +13,8 @@ const debug = (message) => {
 };
 const warn = (message) => console.log(`${chalk.yellow.inverse(` [${(new Date()).toLocaleTimeString()}] - WARN    `)} ${chalk.yellow(message)}`);
 
-const logFailedAttempt = (url, ipAddr) => {
-  warn(`An attempt to view ${url} with IP: ${ipAddr} was probably blocked.`);
+const logClassifiedFailure = (url, ipAddr, status, detail) => {
+  warn(`Attempt to view ${url} with IP: ${ipAddr} failed. Classification: ${status}${detail ? ` | Detail: ${detail}` : ''}`);
 };
 
 const logCount = async (page, url, ipAddr, duration) => {
@@ -24,14 +24,15 @@ const logCount = async (page, url, ipAddr, duration) => {
     store[url].current = currentLiveViewCount;
     store[url].added = store[url].current - store[url].initial;
     success(`Attempted ${url} with IP: ${ipAddr} for ${duration} seconds. (Init View Count: ${store[url].initial} Current View Count: ${store[url].current} Views added this session: ${store[url].added})`);
+    return true;
   } catch {
-    logFailedAttempt(url, ipAddr);
+    return false;
   }
 };
 
 module.exports = {
   logCount,
-  logFailedAttempt,
+  logClassifiedFailure,
   info,
   error,
   warn,
