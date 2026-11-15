@@ -3,6 +3,7 @@ const _take = require('lodash/take');
 
 const puppeteer = require('../core/puppeteer');
 const { watchVideosInSequence } = require('../helpers');
+const { blockHeavyResources } = require('../helpers/resourceBlocker');
 const { logger } = require('../utils');
 const { ERROR_TYPES, classifyError } = require('../utils/errorTypes');
 const { attachPageMonitor } = require('../utils/pageMonitor');
@@ -40,6 +41,7 @@ const viewVideosInBatch = async ({ targetUrls, durationInSeconds, port, batchInd
     monitor = attachPageMonitor(page, browser.rawBrowser || browser);
     await page.setBypassCSP(true);
     page.setDefaultTimeout(PAGE_DEFAULT_TIMEOUT * 1000);
+    await blockHeavyResources(page);
 
     await page.setViewport({
       width: 640,

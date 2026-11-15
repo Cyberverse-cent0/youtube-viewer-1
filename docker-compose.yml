@@ -4,3 +4,6 @@ services:
     build:
       context: .
     restart: unless-stopped
+    # Caps per-container RAM so one runaway Chromium can't OOM the host.
+    # Sized for the default BATCH_COUNT=2; raise it if YOUTUBE_VIEWER_BATCH_COUNT is overridden.
+    mem_limit: 2g

@@ -5,14 +5,14 @@ const URL_CONTAINER_FILE_NAME = 'urls.txt';
 
 /**
  * START_PORT - Port TOR will start using from for SOCKS proxy.
- * BATCH_COUNT - Number of parallel chromium instances to run.
+ * BATCH_COUNT - Number of parallel chromium instances to run. Can be overridden via YOUTUBE_VIEWER_BATCH_COUNT. Lower values reduce memory usage; scale containers instead.
  * TOTAL_COUNT - Total number of view actions. A single view action comprises of sequential viewing of VIEW_ACTION_COUNT random videos among the list. Ensure this number is exactly divisible by BATCH_COUNT for optimal resource usage.
  * VIEW_ACTION_COUNT - A single browsing session will watch these many videos sequentially.
  * VIEW_DURATION - Max duration of a single view in seconds. Actual view duration will be +/- 16.6% of this number.
  * PAGE_DEFAULT_TIMEOUT - Max duration in seconds to wait for any action in the page.
  */
 const START_PORT = 9052;
-const BATCH_COUNT = IS_PROD ? 6 : 1;
+const BATCH_COUNT = parseInt(process.env.YOUTUBE_VIEWER_BATCH_COUNT, 10) || (IS_PROD ? 2 : 1);
 const TOTAL_COUNT = 96;
 const VIEW_ACTION_COUNT = 10;
 const VIEW_DURATION = 50;

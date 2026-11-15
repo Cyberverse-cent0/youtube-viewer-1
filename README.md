@@ -53,4 +53,14 @@ The following commands will help create a docker image, build the app and run it
 
 You may choose to alter the above params in `utils/constants/index.js` for fine tuning according to your needs. 
 
+### Memory tuning
+
+Each parallel Chromium instance is the dominant memory consumer (~0.5-1 GB each depending on session length). To fit more view actions into limited RAM:
+
+ - Keep `BATCH_COUNT` low (default is 2 in production) and scale containers instead: `docker-compose up --scale ytview=N`. Total concurrent Chromium instances = containers × `BATCH_COUNT`.
+ - Override per-container parallelism via `YOUTUBE_VIEWER_BATCH_COUNT` env var.
+ - Images and fonts are blocked via request interception (video streams are unaffected), and Chromium is launched with memory-saving flags (`core/puppeteer.js`).
+ - `mem_limit` in `docker-compose.yml` caps each container's RAM.
+ - Watch the `RESOURCE` log lines (or `Final resource usage`) to measure `chromium_rss_mb` per container before/after tuning.
+
 Also, the above commands runs 5 docker containers in parallel (which will translate to 5 x **Batch Count** number of Chromium instances running simultaneously) . Adjust this according to how capable your system is.
